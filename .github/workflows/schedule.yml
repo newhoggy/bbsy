@@ -10,18 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/checkout@v3
-        with:
-          repository: ${{ github.repository }}.wiki
-          path: wiki
-
       - name: Setup Git
         run: |
-          cd wiki
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
-          git config credential.helper "store --file=$HOME/.git-credentials"
-          echo "https://${{ secrets.PAT_TOKEN }}@github.com" > "$HOME/.git-credentials"
 
       - name: Update BBSY
         run: |
@@ -31,8 +23,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd wiki
           git add .
           git commit -m "Update"
           git push origin master
-    
