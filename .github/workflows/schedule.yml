@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Setup Git
         run: |
@@ -21,8 +23,9 @@ jobs:
 
       - name: Push updates
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           git add .
           git commit -m "Update"
-          git push origin master
+          git remote set-url origin https://newhoggy:${{ secrets.PAT_TOKEN }}@github.com/newhoggy/bbsy
+          git push origin main
