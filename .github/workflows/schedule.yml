@@ -1,0 +1,54 @@
+on:
+  push:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '00 22 * * *'
+
+jobs:
+  daily_schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          ref: ${{ github.head_ref }}
+
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          repository: ${{ github.repository }}
+          ref: data-branch
+          path: data
+
+      - name: Push updates
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git clone https://newhoggy:${{ secrets.PAT_TOKEN }}@github.com/newhoggy/bbsy.wiki wiki
+  
+      - name: Setup Git
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Update BBSY
+        run: |
+          ./scripts/update-bbsy.sh
+
+      - name: Push updates
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          cd wiki
+          git pull
+          git status
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          if [[ -z $(git status --porcelain) ]]; then
+            echo "No changes to commit"
+          else
+            git add . && git commit -m "Update"
+          fi
+          git status
+          git remote set-url origin https://newhoggy:${{ secrets.PAT_TOKEN }}@github.com/newhoggy/bbsy.wiki
+          git push --set-upstream origin master
