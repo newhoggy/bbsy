@@ -11,6 +11,10 @@ curl -s https://asx.api.markitdigital.com/asx-research/1.0/bbsw/history > $downl
 
 download_sha=$(cat $download_file | sha256sum | cut -d ' ' -f 1)
 
+echo "====="
+cat $download_file | yq eval -P
+echo "====="
+
 mv $download_file wiki/blobs/$download_sha
 
 for file in wiki/blobs/*; do
